@@ -16,7 +16,11 @@
 
 DD_BLOCK_SIZE=2048k
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-. $SCRIPT_DIR/capsules.cfg
+#If capsules.cfg is in the same directory of backend scripts
+#. $SCRIPT_DIR/capsules.cfg
+
+#If capsule.cfg is not in the same directory of backend scripts
+. /home/dc-bin/capsules.cfg
 
 # Timeout for boot, in seconds
 TIMEOUT=30
@@ -171,7 +175,7 @@ fi
 
 
 # Echo process command to logs for debugging purposes
-START_VM_COMMAND="nohup $SCRIPT_DIR/tapinit $SCRIPT_DIR $VM_IP_ADDR $QEMU	\
+START_VM_COMMAND="nohup /home/dc-bin/tapinit $SCRIPT_DIR $VM_IP_ADDR $QEMU	\
 		   -enable-kvm							\
 		   -snapshot							\
 		   -no-shutdown							\
@@ -195,7 +199,7 @@ START_VM_COMMAND="nohup $SCRIPT_DIR/tapinit $SCRIPT_DIR $VM_IP_ADDR $QEMU	\
 echo "$START_VM_COMMAND" | sed 's/[\t\n ]\+/ /g' >>$VM_DIR/last_run
 
 # Start guest process
-nohup $SCRIPT_DIR/tapinit $SCRIPT_DIR $VM_IP_ADDR $QEMU				\
+nohup /home/dc-bin/tapinit $SCRIPT_DIR $VM_IP_ADDR $QEMU				\
 		   -enable-kvm							\
 		   -snapshot							\
 		   -no-shutdown							\

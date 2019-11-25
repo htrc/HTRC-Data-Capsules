@@ -14,8 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-. $SCRIPT_DIR/capsules.cfg
+#If capsules.cfg is in the same directory of backend scripts
+#. $SCRIPT_DIR/capsules.cfg
+
+#If capsule.cfg is not in the same directory of backend scripts
+. /home/dc-bin/capsules.cfg
 
 
 usage () {
