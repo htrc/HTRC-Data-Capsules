@@ -37,7 +37,7 @@ public class VMStateManager {
 		return (state == VMState.CREATE_PENDING || state == VMState.LAUNCH_PENDING ||
 				state == VMState.SHUTDOWN_PENDING || state == VMState.DELETE_PENDING ||
 				state == VMState.SWITCH_TO_MAINTENANCE_PENDING || 
-				state == VMState.SWITCH_TO_SECURE_PENDING || state == VMState.MIGRATE_PENDING)
+				state == VMState.SWITCH_TO_SECURE_PENDING || state == VMState.MIGRATE_PENDING || state == VMState.IMAGE_SHARE_PENDING)
 				? true: false;
 	}
 
@@ -114,6 +114,12 @@ public class VMStateManager {
 
 			case DELETE_PENDING :
 				if(target == VMState.DELETE_ERROR) {
+					canTrasist = true;
+				}
+				break;
+
+			case IMAGE_SHARE_PENDING:
+				if(target == VMState.SHUTDOWN) {
 					canTrasist = true;
 				}
 				break;

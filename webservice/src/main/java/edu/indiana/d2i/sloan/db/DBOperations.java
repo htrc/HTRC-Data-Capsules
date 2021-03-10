@@ -1018,6 +1018,32 @@ public class DBOperations {
 		executeTransaction(updates);
 	}
 
+	public void addImage(ImageInfoBean imageInfoBean) throws SQLException {
+		Connection connection = null;
+		PreparedStatement pst = null;
+		try {
+			String insertResult = String.format(
+					"INSERT INTO " + DBSchema.ImageTable.TABLE_NAME + " (%s, %s, %s, %s, %s, %s) VALUES" + "(?, ?, ?, ?, ?, ?)",
+					DBSchema.ImageTable.IMAGE_NAME, DBSchema.ImageTable.IMAGE_DESCRIPTION, DBSchema.ImageTable.IMAGE_PATH,
+					DBSchema.ImageTable.IMAGE_LOGIN_ID, DBSchema.ImageTable.IMAGE_LOGIN_PASSWORD, DBSchema.ImageTable.IMAGE_STATUS);
+
+			connection = DBConnections.getInstance().getConnection();
+			pst = connection.prepareStatement(insertResult);
+			pst.setString(1, imageInfoBean.getImageName());
+			pst.setString(2, imageInfoBean.getImageDescription());
+			pst.setString(3, imageInfoBean.getImagePath());
+			pst.setString(4, imageInfoBean.getLoginUserName());
+			pst.setString(5, imageInfoBean.getLoginPassWord());
+			pst.setString(6, imageInfoBean.getImageStatus());
+			pst.executeUpdate();
+		} finally {
+			if (pst != null)
+				pst.close();
+			if (connection != null)
+				connection.close();
+		}
+	}
+
 	public String getImagePath(String imageName) throws SQLException {
 		Connection connection = null;
 		PreparedStatement pst1 = null;
