@@ -81,6 +81,7 @@ public final class Configuration {
 		public static final String PORT_RANGE_MIN = "sloan.ws.port.range.min";
 		public static final String PORT_RANGE_MAX = "sloan.ws.port.range.max";
 		public static final String HOSTS = "sloan.ws.hosts";
+		public static final String HOST_IMAGE_DIR = "host.image.dir";
 
 		// hypervisor related properties
 
@@ -103,6 +104,7 @@ public final class Configuration {
 		public static final String CMD_UPDATE_CUSTOS_CREDS = "cmd.update.custos.creds";
 		public static final String MIGRATE_VM = "cmd.migrate.vm";
 		public static final String CMD_DELETE_KEY = "cmd.delete.key";
+		public static final String SHARE_IMAGE = "cmd.share.vm";
 
 		/* hypervisor fire wall policy */
 		public static final String MAINTENANCE_FIREWALL_POLICY = "hypervisor.fw.maintenance";
