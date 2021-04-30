@@ -15,27 +15,91 @@
  ******************************************************************************/
 package edu.indiana.d2i.sloan.bean;
 
+import edu.indiana.d2i.sloan.image.ImageState;
+
 public class ImageInfoBean {
+	private String imageId;
 	private String imageName;
-	private String imageStatus;
+	private ImageState imageStatus;
 	private String imageDescription;
 	private String imagePath;
 	private String loginUserName;
 	private String loginPassWord;
+	private String sourceVM;
+	private Boolean isPublic;
+	private String owner;
+	private String createdAt;
+	private String updatedAt;
 
-	public ImageInfoBean(String imageName, String imageStatus, String imageDescription) {
-		this.imageName = imageName;
-		this.imageStatus = imageStatus;
-		this.imageDescription = imageDescription;
-	}
+//	public ImageInfoBean(String imageName, ImageState imageStatus, String imageDescription) {
+//		this.imageName = imageName;
+//		this.imageStatus = imageStatus;
+//		this.imageDescription = imageDescription;
+//	}
 
-	public ImageInfoBean(String imageName, String imageStatus, String imageDescription, String imagePath, String loginUserName, String loginPassWord) {
+	public ImageInfoBean(String imageId, String imageName, ImageState imageStatus, String imageDescription, String imagePath, String loginUserName,
+						 String loginPassWord, String sourceVM, Boolean isPublic, String owner, String createdAt, String updatedAt) {
+		this.imageId = imageId;
 		this.imageName = imageName;
 		this.imageStatus = imageStatus;
 		this.imageDescription = imageDescription;
 		this.imagePath = imagePath;
 		this.loginUserName = loginUserName;
 		this.loginPassWord = loginPassWord;
+		this.sourceVM = sourceVM;
+		this.isPublic = isPublic;
+		this.owner = owner;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+	}
+
+	public String getSourceVM() {
+		return sourceVM;
+	}
+
+	public void setSourceVM(String sourceVM) {
+		this.sourceVM = sourceVM;
+	}
+
+
+	public Boolean getPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(Boolean aPublic) {
+		isPublic = aPublic;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public String getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
 	}
 	
 	public String getImageName() {
@@ -46,7 +110,7 @@ public class ImageInfoBean {
 		return imageDescription;
 	}
 
-	public String getImageStatus() {
+	public ImageState getImageStatus() {
 		return imageStatus;
 	}
 
@@ -58,7 +122,7 @@ public class ImageInfoBean {
 		this.imageDescription = imageDescription;
 	}
 
-	public void setImageStatus(String imageStatus) {
+	public void setImageStatus(ImageState imageStatus) {
 		this.imageStatus = imageStatus;
 	}
 

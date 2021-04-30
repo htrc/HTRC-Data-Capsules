@@ -18,23 +18,6 @@ CREATE SCHEMA IF NOT EXISTS `htrcvirtdb` DEFAULT CHARACTER SET utf8 ;
 USE `htrcvirtdb` ;
 
 -- -----------------------------------------------------
--- Table `htrcvirtdb`.`images`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `htrcvirtdb`.`images` ;
-
-CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`images` (
-  `imagename` VARCHAR(128) NOT NULL,
-  `status` VARCHAR(128) NOT NULL,
-  `imagedescription` VARCHAR(1024) NULL,
-  `imagepath` VARCHAR(512) NULL,
-  `loginusername` VARCHAR(32) NULL,
-  `loginpassword` VARCHAR(128) NULL,
-  PRIMARY KEY (`imagename`),
-  UNIQUE (`imagepath`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `htrcvirtdb`.`users`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `htrcvirtdb`.`users` ;
@@ -45,10 +28,37 @@ CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`users` (
   `cpuleftquota` int(11) NULL,
   `memoryleftquota` INT(11) NULL,
   `diskleftquota` INT(11) NULL,
+  `imageleftquota` INT(11) NULL,
   `usertype` VARCHAR(64) NULL DEFAULT 'regular',
   `pub_key` VARCHAR(1024) CHARACTER SET utf8 DEFAULT NULL,
   `tou` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`guid`))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `htrcvirtdb`.`images`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `htrcvirtdb`.`images` ;
+
+CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`images` (
+  `imageid` VARCHAR(128) NOT NULL,
+  `imagename` VARCHAR(128) NOT NULL,
+  `status` ENUM('DELETED', 'ACTIVE', 'PENDING') NULL,
+  `imagedescription` VARCHAR(1024) NULL,
+  `imagepath` VARCHAR(512) NULL,
+  `loginusername` VARCHAR(32) NULL,
+  `loginpassword` VARCHAR(128) NULL,
+  `source_vm` VARCHAR(128) DEFAULT NULL,
+  `public` tinyint(1) DEFAULT '0',
+  `owner` varchar(64) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`imageid`),
+  CONSTRAINT `fk_users`
+    FOREIGN KEY (`owner`)
+    REFERENCES `htrcvirtdb`.`users` (`guid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -77,6 +87,7 @@ CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`vms` (
   `sshport` INT(11) DEFAULT NULL,
   `vncport` INT(11) DEFAULT NULL,
   `workingdir` VARCHAR(512) DEFAULT NULL,
+  `imageid` VARCHAR(128) DEFAULT NULL,
   `imagename` VARCHAR(128) DEFAULT NULL,
   `vncusername` VARCHAR(128) DEFAULT NULL,
   `vncpassword` VARCHAR(128) DEFAULT NULL,
@@ -86,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`vms` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `guid` varchar(64) NOT NULL,
   `host` VARCHAR(128) DEFAULT NULL,
-  `type` enum('DEMO','RESEARCH','RESEARCH-FULL') DEFAULT 'RESEARCH',
+  `consent` tinyint(1) DEFAULT NULL,
   `title` varchar(256) DEFAULT NULL,
   `desc_nature` varchar(2048) DEFAULT NULL,
   `desc_requirement` varchar(2048) DEFAULT NULL,
@@ -94,18 +105,20 @@ CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`vms` (
   `desc_links` varchar(2048) DEFAULT NULL,
   `rr_data_files` varchar(2048) DEFAULT NULL,
   `rr_result_usage` varchar(2048) DEFAULT NULL,
+  `type` enum('DEMO','RESEARCH','RESEARCH-FULL') DEFAULT 'RESEARCH',
   `desc_shared` varchar(6144) DEFAULT NULL,
-  `consent` tinyint(1) DEFAULT NULL,
+  `custos_client_id` VARCHAR(128) DEFAULT NULL,
+  `custos_client_secret` VARCHAR(128) DEFAULT NULL,
   PRIMARY KEY (`vmid`),
-  INDEX `fk_images_idx` (`imagename` ASC),
+  INDEX `fk_images_idx` (`imageid` ASC),
   INDEX `fk_users_idx` (`guid`),
   INDEX `fk_host_idx` (`host` ASC),
   CONSTRAINT `fk_images`
-    FOREIGN KEY (`imagename`)
-    REFERENCES `htrcvirtdb`.`images` (`imagename`)
+    FOREIGN KEY (`imageid`)
+    REFERENCES `htrcvirtdb`.`images` (`imageid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_users`
+  CONSTRAINT `fk_user`
     FOREIGN KEY (`guid`)
     REFERENCES `htrcvirtdb`.`users` (`guid`)
     ON DELETE NO ACTION
@@ -131,8 +144,8 @@ CREATE TABLE IF NOT EXISTS `htrcvirtdb`.`results` (
   `notifiedtime` TIMESTAMP NULL,
   `reviewer` VARCHAR(128) DEFAULT NULL,
   `status` ENUM('Released', 'Rejected', 'Pending') DEFAULT 'Pending',
-  `state` ENUM('CREATED', 'DELETED') DEFAULT 'CREATED',
   `comment` MEDIUMTEXT NULL,
+  `state` ENUM('CREATED', 'DELETED') DEFAULT 'CREATED',
   PRIMARY KEY (`vmid`, `resultid`),
   CONSTRAINT `fk_vms`
     FOREIGN KEY (`vmid`)

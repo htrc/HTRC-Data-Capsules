@@ -22,7 +22,7 @@ import java.util.List;
 
 public class VmInfoBean {
 	private String vmid, publicip, created_at, workDir, imagepath, policypath, vncloginId,
-			vncloginPwd, imagename, policyname, vmloginid, vmloginpwd;
+			vncloginPwd, imageid, imagename, policyname, vmloginid, vmloginpwd;
 	private int sshport, vncport, numCPUs, memorySize, volumeSize;
 	private VMMode vmmode;
 	private VMMode requestedVMMode;
@@ -49,6 +49,14 @@ public class VmInfoBean {
 		this.policypath = policypath;
 	}
 
+	public String getImageid() {
+		return imageid;
+	}
+
+	public void setImageid(String imageid) {
+		this.imageid = imageid;
+	}
+
 	public VmInfoBean(String vmid, List<VmUserRole> roles, Boolean full_access, String created_at) {
 		this.vmid = vmid;
 		this.roles = roles;
@@ -67,6 +75,7 @@ public class VmInfoBean {
 		this.vncloginId = "";
 		this.vncloginPwd = "";
 		this.imagename = "";
+		this.imageid = "";
 		this.policyname = "";
 		this.requestedVMMode = VMMode.NOT_DEFINED;
 		this.vmloginid = "";
@@ -88,7 +97,7 @@ public class VmInfoBean {
 			String imagepath, String policypath, int sshport, int vncport,
 			int numCPUs, int memorySize, int diskSpace, VMMode vmmode,
 			VMState vmstate, String vncloginId, String vncloginPwd,
-			String vmloginid, String vmloginpwd,
+			String vmloginid, String vmloginpwd, String imageId,
 			String imagename, String policyname, VMMode requestedVMMode, String type, String title,
 					  Boolean consent, String desc_nature, String desc_requirement, String desc_links, String desc_outside_data,
 			String rr_data_files, String rr_result_usage, Boolean full_access, List<VmUserRole> roles, String desc_shared) {
@@ -108,6 +117,7 @@ public class VmInfoBean {
 		this.vmstate = vmstate;
 		this.vncloginId = vncloginId;
 		this.vncloginPwd = vncloginPwd;
+		this.imageid = imageId;
 		this.imagename = imagename;
 		this.policyname = policyname;
 		this.requestedVMMode = requestedVMMode;
@@ -294,10 +304,10 @@ public class VmInfoBean {
 
 	@Override
 	public String toString() {
-		return String.format("[vmid=%s, publicip=%s, workDir=%s, imagename=%s, " +
+		return String.format("[vmid=%s, publicip=%s, workDir=%s, imageid=%s, imagename=%s, " +
 			"imagepath=%s, sshport=%d, vncport=%d, vmloginId=%s, vmloginPwd=%s, " +
 			"numCPUs=%d, memorySize=%d, volumeSize=%d, policypath=%s, vmmode=%s," +
-			"vmstate=%s, requestmode=%s, type=%s, roles=%s]",  vmid, publicip, workDir, imagename, imagepath, sshport,
+			"vmstate=%s, requestmode=%s, type=%s, roles=%s]",  vmid, publicip, workDir, imageid, imagename, imagepath, sshport,
 			vncport, vncloginId, vncloginPwd, numCPUs, memorySize, volumeSize, policypath,
 			(vmmode != null) ? vmmode.toString(): null, 
 			(vmstate != null) ? vmstate.toString(): null, 

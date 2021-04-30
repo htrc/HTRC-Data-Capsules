@@ -150,6 +150,10 @@
 		<name>user.memory.quota.in.mb</name>
 		<value>20480</value>
 	</property>
+	<property>
+		<name>user.image.quota.in.num</name>
+		<value>5</value>
+	</property>
 
 	<!-- scheduler -->
 	<property>

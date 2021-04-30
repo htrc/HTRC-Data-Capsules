@@ -30,6 +30,7 @@ public class DBSchema {
 		public static String SSH_PORT = "sshport";
 		public static String VNC_PORT = "vncport";
 		public static String WORKING_DIR = "workingdir";
+		public static String IMAGE_ID = "imageid";
 		public static String IMAGE_NAME = "imagename";
 		public static String POLICY_NAME = "policyname";
 		public static String TYPE = "type";
@@ -102,6 +103,9 @@ public class DBSchema {
 		
 		/* remaining disk space quota in GB */
 		public static String DISK_LEFT_QUOTA = "diskleftquota";
+
+		/* remaining CPU quota */
+		public static String IMAGE_LEFT_QUOTA = "imageleftquota";
 		
 		/* currently all users are of the same type */
 		public static String USER_TYPE = "usertype";
@@ -115,12 +119,18 @@ public class DBSchema {
 
 	public static class ImageTable {
 		public static String TABLE_NAME = "images";
+		public static String IMAGE_ID = "imageid";
 		public static String IMAGE_NAME = "imagename";
 		public static String IMAGE_STATUS = "status";
 		public static String IMAGE_PATH = "imagepath";
 		public static String IMAGE_LOGIN_ID = "loginusername";
 		public static String IMAGE_LOGIN_PASSWORD = "loginpassword";
 		public static String IMAGE_DESCRIPTION = "imagedescription";
+		public static String SOURCE_VM = "source_vm";
+		public static String PUBLIC = "public";
+		public static String OWNER = "owner";
+		public static String CREATED_AT = "created_at";
+		public static String UPDATED_AT = "updated_at";
 	}
 	
 	public static class ResultTable {

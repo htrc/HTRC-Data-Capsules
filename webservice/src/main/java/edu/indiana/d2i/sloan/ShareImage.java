@@ -17,15 +17,14 @@ package edu.indiana.d2i.sloan;
 
 import edu.indiana.d2i.sloan.bean.ErrorBean;
 import edu.indiana.d2i.sloan.bean.ImageInfoBean;
+import edu.indiana.d2i.sloan.bean.ListImageResponseBean;
 import edu.indiana.d2i.sloan.bean.VmInfoBean;
 import edu.indiana.d2i.sloan.db.DBOperations;
-import edu.indiana.d2i.sloan.exception.InvalidHostNameException;
 import edu.indiana.d2i.sloan.exception.NoItemIsFoundInDBException;
 import edu.indiana.d2i.sloan.hyper.HypervisorProxy;
 import edu.indiana.d2i.sloan.hyper.ShareImageCommand;
+import edu.indiana.d2i.sloan.image.ImageState;
 import edu.indiana.d2i.sloan.utils.RolePermissionUtils;
-import edu.indiana.d2i.sloan.vm.PortsPool;
-import edu.indiana.d2i.sloan.vm.VMPorts;
 import edu.indiana.d2i.sloan.vm.VMState;
 import edu.indiana.d2i.sloan.vm.VMStateManager;
 import org.slf4j.Logger;
@@ -38,18 +37,22 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.UUID;
 
 @Path("/shareimage")
 public class ShareImage {
 	private static final Logger logger = LoggerFactory.getLogger(ShareImage.class);
 	private static final String ADMIN = "admin";
+	private final java.text.SimpleDateFormat DATE_FORMATOR =
+			new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response shareImage(@FormParam("vmid") String vmId, @FormParam("imagename") String imageName,
-							   @FormParam("imagedescription") String imageDescription,
+	public Response shareImage(@FormParam("vmId") String vmId,
+							   @FormParam("imageName") String imageName,
+							   @FormParam("imageDescription") String imageDescription,
+							   @FormParam("public") Boolean isPublic,
 			@Context HttpHeaders httpHeaders,
 			@Context HttpServletRequest httpServletRequest) {
 		String userName = httpServletRequest.getHeader(Constants.USER_NAME);
@@ -61,8 +64,8 @@ public class ShareImage {
 					.entity(new ErrorBean(500,
 							"Username is not present in http header.")).build();
 		}
-		
-		if (vmId == null || imageName == null || imageDescription == null) {
+
+		if (vmId == null || imageName == null || imageDescription == null || isPublic == null) {
 			return Response.status(400)
 					.entity(new ErrorBean(400, "One or two form parameters are empty!"))
 					.build();
@@ -86,12 +89,30 @@ public class ShareImage {
 						.build();
 			}
 
-			logger.info(userName + " requests to share the image of VM " + vmInfo.getVmid());
-			vmInfo.setVmState(VMState.IMAGE_SHARE_PENDING);
-			String newImagePath = Configuration.PropertyName.HOST_IMAGE_DIR + vmInfo.getImageName() + "-" +vmId + ".img";
-			ImageInfoBean imageInfoBean = new ImageInfoBean(imageName, "PENDING", imageDescription, newImagePath, null, null);
-			HypervisorProxy.getInstance().addCommand(new ShareImageCommand(vmInfo, imageInfoBean, userName));
-			return Response.status(200).build();
+			CheckImageName checkImageName = new CheckImageName();
+			if (!checkImageName.isImageNameAvailable(imageName)){
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "Image Name is not available!"))
+						.build();
+			}
+
+			if(DBOperations.getInstance().imageQuotaNotExceedLimit(userName)){
+				logger.info(userName + " requests to share the image of VM " + vmInfo.getVmid());
+				vmInfo.setVmState(VMState.IMAGE_SHARE_PENDING);
+				String imageId = UUID.randomUUID().toString();
+				String newImagePath = Configuration.PropertyName.HOST_IMAGE_DIR + imageId + ".img";
+				java.util.Date dt = new java.util.Date();
+				String created_at = DATE_FORMATOR.format(dt);
+				ImageInfoBean imageInfoBean = new ImageInfoBean(imageId, imageName, "PENDING", imageDescription, newImagePath, null, null, vmId, isPublic, userName,created_at,created_at);
+				HypervisorProxy.getInstance().addCommand(new ShareImageCommand(vmInfo, imageInfoBean, userName));
+				return Response.status(200).entity(imageInfoBean).build();
+			} else {
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "User's Image share left quota is exceeded!"))
+						.build();
+			}
 
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
@@ -103,6 +124,73 @@ public class ShareImage {
 					.status(400)
 					.entity(new ErrorBean(400, "Cannot find VM " + vmId
 							+ " associated with username " + userName)).build();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(500)
+					.entity(new ErrorBean(500, e.getMessage())).build();
+		}
+	}
+
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateImage(@FormParam("imageId") String imageId,
+							   @FormParam("imageName") String imageName,
+							   @FormParam("imageDescription") String imageDescription,
+							   @FormParam("public") Boolean isPublic,
+							   @Context HttpHeaders httpHeaders,
+							   @Context HttpServletRequest httpServletRequest) {
+		String userName = httpServletRequest.getHeader(Constants.USER_NAME);
+
+		if (userName == null) {
+			logger.error("Username is not present in http header.");
+			return Response
+					.status(500)
+					.entity(new ErrorBean(500,
+							"Username is not present in http header.")).build();
+		}
+
+		if (imageId == null || imageName == null || imageDescription == null || isPublic == null) {
+			return Response.status(400)
+					.entity(new ErrorBean(400, "One or two form parameters are empty!"))
+					.build();
+		}
+
+
+
+		try {
+			ImageInfoBean imageInfo = DBOperations.getInstance().getImageInfo(imageId);
+
+			if (!imageInfo.getOwner().equals(userName)) {
+				return Response.status(400).entity(new ErrorBean(400,
+						"User " + userName + " cannot update the image with the Image ID " + imageId)).build();
+			}
+
+
+			if (!imageInfo.getImageStatus().equals(ImageState.ACTIVE)) {
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "Cannot update the image with the image ID " + imageId+ " when it's not in " + ImageState.ACTIVE + " state."))
+						.build();
+			}
+
+			CheckImageName checkImageName = new CheckImageName();
+			if (!imageName.equals(imageInfo.getImageName()) && !checkImageName.isImageNameAvailable(imageName)){
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "Image Name is not available!"))
+						.build();
+			}
+
+			logger.info(userName + " requests to update the image with the image ID " + imageId);
+			DBOperations.getInstance().updateImage(imageId,imageName,imageDescription,isPublic);
+			imageInfo = DBOperations.getInstance().getImageInfo(imageId);
+			return Response.status(200).entity(imageInfo).build();
+
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(500).
+					entity(new ErrorBean(500, "Internal error - " + e.getMessage())).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return Response.status(500)

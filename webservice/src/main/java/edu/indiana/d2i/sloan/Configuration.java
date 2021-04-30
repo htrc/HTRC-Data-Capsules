@@ -67,6 +67,7 @@ public final class Configuration {
 		public static final String USER_DISK_QUOTA_IN_GB = "user.disk.quota.in.gb";
 		public static final String USER_CPU_QUOTA_IN_NUM = "user.cpu.quota.in.num";
 		public static final String USER_MEMORY_QUOTA_IN_MB = "user.memory.quota.in.mb";
+		public static final String USER_IMAGE_QUOTA_IN_NUM = "user.image.quota.in.num";
 
 		// scheduler related properties
 		public static final String SCHEDULER_IMPL_CLASS = "scheduler.impl.class";
