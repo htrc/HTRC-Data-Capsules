@@ -11,7 +11,7 @@
 			edu.indiana.d2i.sloan.ShowUnreleased;edu.indiana.d2i.sloan.RetrieveResultFile;edu.indiana.d2i.sloan.UpdateUserTOU;edu.indiana.d2i.sloan.UpdateVm;
 			edu.indiana.d2i.sloan.UpdateUserEmail;edu.indiana.d2i.sloan.MigrateVM;edu.indiana.d2i.sloan.AddVmSharees;edu.indiana.d2i.sloan.DeleteVmSharees;
 			edu.indiana.d2i.sloan.ManageController;edu.indiana.d2i.sloan.GetVMResults;edu.indiana.d2i.sloan.DeleteResult;edu.indiana.d2i.sloan.ExitSharee;
-			edu.indiana.d2i.sloan.CheckResultDownloadability</value>
+			edu.indiana.d2i.sloan.CheckResultDownloadability;edu.indiana.d2i.sloan.UpdateCustosCreds;edu.indiana.d2i.sloan.AddSupportUser</value>
     </property>
 
 	<!-- hypervisor -->
