@@ -496,6 +496,40 @@ def manage_controller(vm,guid,sharee_guid,action):
     data = response.read()
     print(data)
 
+def list_images(guid):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
+
+    # GET the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("GET", '/sloan-ws/listimages', " ", headers)
+    response = conn.getresponse()
+
+    print(response.read())
+
+def get_image(guid, image_id):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
+
+    # GET the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("GET", '/sloan-ws/getimage?imageId=' + image_id, " ", headers)
+    response = conn.getresponse()
+
+    print(response.read())
+
+def check_image_name(guid, image_name):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
+
+    # GET the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("GET", '/sloan-ws/checkimagename?imageName=' + image_name, " ", headers)
+    response = conn.getresponse()
+
+    print(response.read())
+
+
 
 
 
@@ -615,6 +649,17 @@ if __name__ == '__main__':
     managecontroller.add_argument('owner_guid')
     managecontroller.add_argument('sharee_guid')
     managecontroller.add_argument('action')
+
+    listimages = subparsers.add_parser('listimages', description='List all images.')
+    listimages.add_argument('guid')
+
+    getimage = subparsers.add_parser('getimage', description='Get image information.')
+    getimage.add_argument('guid')
+    getimage.add_argument('image_id')
+
+    checkimagename = subparsers.add_parser('checkimagename', description='Check image name availability.')
+    checkimagename.add_argument('guid')
+    checkimagename.add_argument('image_name')
 
 
     parsed = parser.parse_args()
@@ -754,3 +799,12 @@ if __name__ == '__main__':
         if confirmation:
             print(parsed.action + ' controller role from/to ' + parsed.sharee_guid + '....')
             manage_controller(parsed.vm,parsed.owner_guid,parsed.sharee_guid, parsed.action)
+
+    if parsed.sub_commands == 'listimages':
+        list_images(parsed.guid)
+
+    if parsed.sub_commands == 'getimage':
+        get_image(parsed.guid, parsed.image_id)
+
+    if parsed.sub_commands == 'checkimagename':
+        check_image_name(parsed.guid, parsed.image_name)

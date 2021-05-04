@@ -76,12 +76,13 @@ public class CheckImageName {
 	}
 
 	public Boolean isImageNameAvailable(String imageName){
-		boolean imageNameAvailable = false;
+		boolean imageNameAvailable = true;
 		try {
 			List<ImageInfoBean> imageInfo = DBOperations.getInstance().getImagesInfo();
 			for(ImageInfoBean imageInfoBean: imageInfo){
-				if(imageInfoBean.getImageName().equals(imageName)){
-					imageNameAvailable = imageInfoBean.getImageStatus() != ImageState.PENDING && imageInfoBean.getImageStatus() != ImageState.ACTIVE;
+				if(imageInfoBean.getImageName().equals(imageName) && imageInfoBean.getImageStatus() != ImageState.DELETED){
+					logger.debug(imageInfoBean.getImageStatus().toString());
+					imageNameAvailable = false ;
 				}
 			}
 		} catch (SQLException e) {

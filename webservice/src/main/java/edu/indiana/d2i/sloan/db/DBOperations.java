@@ -375,7 +375,7 @@ public class DBOperations {
 	public List<VmInfoBean> getAllVmInfo() throws SQLException, NoItemIsFoundInDBException {
 		String sql = String.format("SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","
@@ -411,7 +411,7 @@ public class DBOperations {
 	public VmInfoBean getAllVmInfoByID(String vmid) throws SQLException, NoItemIsFoundInDBException {
 		String sql = String.format("SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","
@@ -448,7 +448,7 @@ public class DBOperations {
 	public List<VmInfoBean> getExistingVmInfo() throws SQLException {
 		String sql = "SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","
@@ -477,7 +477,7 @@ public class DBOperations {
 	public List<VmInfoBean> getVmInfo(String userName) throws SQLException {
 		String sql = String.format("SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","
@@ -513,7 +513,7 @@ public class DBOperations {
 			throws SQLException, NoItemIsFoundInDBException {
 		String sql = String.format("SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","
@@ -556,7 +556,7 @@ public class DBOperations {
 			throws SQLException, NoItemIsFoundInDBException {
 		String sql = String.format("SELECT " + DBSchema.VmTable.VM_MODE + ","
 				+ DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.VM_ID
-				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.CREATED_AT + ","
+				+ "," + DBSchema.VmTable.HOST + "," + DBSchema.VmTable.TABLE_NAME + "." + DBSchema.VmTable.CREATED_AT + ","
 				+ DBSchema.VmTable.STATE + "," + DBSchema.VmTable.SSH_PORT
 				+ "," + DBSchema.VmTable.VNC_PORT + ","
 				+ DBSchema.VmTable.WORKING_DIR + ","

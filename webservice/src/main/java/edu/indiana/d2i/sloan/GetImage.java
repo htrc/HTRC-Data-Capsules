@@ -22,10 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -39,7 +36,7 @@ public class GetImage {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getImage(@FormParam("imageId") String imageId,
+	public Response getImage(@QueryParam("imageId") String imageId,
 			@Context HttpHeaders httpHeaders,
 			@Context HttpServletRequest httpServletRequest) {
 		String userName = httpServletRequest.getHeader(Constants.USER_NAME);

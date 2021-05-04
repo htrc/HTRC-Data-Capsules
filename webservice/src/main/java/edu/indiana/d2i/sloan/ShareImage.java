@@ -104,7 +104,7 @@ public class ShareImage {
 				String newImagePath = Configuration.PropertyName.HOST_IMAGE_DIR + imageId + ".img";
 				java.util.Date dt = new java.util.Date();
 				String created_at = DATE_FORMATOR.format(dt);
-				ImageInfoBean imageInfoBean = new ImageInfoBean(imageId, imageName, "PENDING", imageDescription, newImagePath, null, null, vmId, isPublic, userName,created_at,created_at);
+				ImageInfoBean imageInfoBean = new ImageInfoBean(imageId, imageName, ImageState.PENDING, imageDescription, newImagePath, null, null, vmId, isPublic, userName,created_at,created_at);
 				HypervisorProxy.getInstance().addCommand(new ShareImageCommand(vmInfo, imageInfoBean, userName));
 				return Response.status(200).entity(imageInfoBean).build();
 			} else {

@@ -140,8 +140,8 @@ public class TestCapsuleHypervisor {
 			VmInfoBean vminfo = new VmInfoBean("vmid-" + i, "192.168.0." + i, null,
 				"/path/to/work/dir-"+i, 
 				"/path/to/image", "/path/to/policy", 2000 + i*2, 2000 + i*2 +1, 2, 2048, 
-				10, VMMode.NOT_DEFINED, VMState.LAUNCH_PENDING, "ubuntu", 
-				"password", "test-image", "ubuntu", "password", "test-policy", VMMode.MAINTENANCE
+				10, VMMode.NOT_DEFINED, VMState.LAUNCH_PENDING, "vncuserid","vncpass",
+				"password", "test-image", "ubuntu-imageid", "ubuntu", "test-policy", VMMode.MAINTENANCE
 					, "DEMO", null, null, null, null, null, null, null, null, null, null, null);
 			
 			HypervisorResponse response = hypervisor.createVM(vminfo, "pubkey1", "user" + i);
