@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +22,7 @@ public class ActivateImage {
 
     @PUT
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateImage(@FormParam("imageId") String imageId,
                                 @Context HttpHeaders httpHeaders,
                                 @Context HttpServletRequest httpServletRequest) {
@@ -37,15 +35,17 @@ public class ActivateImage {
 
         try {
             ImageInfoBean imageInfo = DBOperations.getInstance().getImageInfo(imageId);
-            if(imageInfo.getImageStatus() != ImageState.PENDING){
+            if(imageInfo.getImageStatus() != ImageState.SHARE_PENDING){
+                logger.error("Cannot update the image with the image ID " + imageId+ " when it's not in the " + ImageState.SHARE_PENDING.toString() + " state.");
                 return Response
                         .status(400)
-                        .entity(new ErrorBean(400, "Cannot update the image with the image ID " + imageId+ " when it's not in " + ImageState.PENDING + " state."))
+                        .entity(new ErrorBean(400, "Cannot update the image with the image ID " + imageId + " when it's not in " + ImageState.SHARE_PENDING.toString() + " state."))
                         .build();
             }
-            DBOperations.getInstance().updateImageSate(imageId, ImageState.ACTIVE);
+            DBOperations.getInstance().updateImageState(imageId, ImageState.ACTIVE);
+            imageInfo.setImageStatus(ImageState.ACTIVE);
             logger.info("Activated the image with the ID " + imageId );
-            return Response.status(200).build();
+            return Response.status(200).entity(imageInfo).build();
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
             return Response.status(500)

@@ -142,6 +142,11 @@ public class RandomFailHypervisor implements IHypervisor {
 	}
 
 	@Override
+	public HypervisorResponse deleteImage(VmInfoBean vminfo, ImageInfoBean imageInfoBean) throws Exception {
+		return simulateRandProcess();
+	}
+
+	@Override
 	public HypervisorResponse deletePubKey(VmInfoBean vminfo, String pubKey, String userId) throws Exception {
 		return simulateRandProcess();
 	}

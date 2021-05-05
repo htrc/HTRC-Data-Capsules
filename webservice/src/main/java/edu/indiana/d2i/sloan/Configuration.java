@@ -105,7 +105,8 @@ public final class Configuration {
 		public static final String CMD_UPDATE_CUSTOS_CREDS = "cmd.update.custos.creds";
 		public static final String MIGRATE_VM = "cmd.migrate.vm";
 		public static final String CMD_DELETE_KEY = "cmd.delete.key";
-		public static final String SHARE_IMAGE = "cmd.share.vm";
+		public static final String SHARE_IMAGE = "cmd.share.image";
+		public static final String DELETE_IMAGE = "cmd.delete.image";
 
 		/* hypervisor fire wall policy */
 		public static final String MAINTENANCE_FIREWALL_POLICY = "hypervisor.fw.maintenance";

@@ -5,8 +5,6 @@ import edu.indiana.d2i.sloan.bean.ErrorBean;
 import edu.indiana.d2i.sloan.bean.ImageInfoBean;
 import edu.indiana.d2i.sloan.bean.VmInfoBean;
 import edu.indiana.d2i.sloan.db.DBOperations;
-import edu.indiana.d2i.sloan.hyper.DeleteImageCommand;
-import edu.indiana.d2i.sloan.hyper.HypervisorProxy;
 import edu.indiana.d2i.sloan.image.ImageState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +16,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/deleteimage")
-public class DeleteImage {
-    private static final Logger logger = LoggerFactory.getLogger(DeleteImage.class);
+@Path("/requestimagedelete")
+public class RequestImageDeletion {
+    private static final Logger logger = LoggerFactory.getLogger(RequestImageDeletion.class);
 
-    @DELETE
+    @PUT
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateImage(@FormParam("imageId") String imageId,
                                 @Context HttpHeaders httpHeaders,
                                 @Context HttpServletRequest httpServletRequest) {
@@ -47,19 +46,20 @@ public class DeleteImage {
         try {
             ImageInfoBean imageInfo = DBOperations.getInstance().getImageInfo(imageId);
             VmInfoBean vmInfoBean = DBOperations.getInstance().getAllVmInfoByID(imageInfo.getSourceVM());
-            if(imageInfo.getImageStatus() != ImageState.DELETE_PENDING){
-                logger.error("Cannot DELETE the image with the image ID " + imageId+ " when it's not in the " + ImageState.DELETE_PENDING.toString() + " state.");
+            if(imageInfo.getImageStatus() == ImageState.DELETED || imageInfo.getImageStatus() == ImageState.DELETE_PENDING){
+                logger.error("Cannot request to delete the image with the image ID " + imageId+ " when it's in the " + imageInfo.getImageStatus().toString() + " state.");
                 return Response
                         .status(400)
-                        .entity(new ErrorBean(400, "Cannot DELETE the image with the image ID " + imageId+ " when it's not in " + ImageState.DELETE_PENDING.toString() + " state."))
+                        .entity(new ErrorBean(400, "Cannot request to delete the image with the image ID " + imageId+ " when it's in the " + imageInfo.getImageStatus().toString() + " state."))
                         .build();
             }
             if(!imageInfo.getOwner().equals(userName)){
-                logger.error("User " + userName + " is not allowed to delete the image with image ID " + imageId);
-                return Response.status(400).entity( "User " + userName + " is not allowed to delete the image with image ID " + imageId).build();
+                logger.error("User " + userName + " is not allowed to request to delete the image with image ID " + imageId);
+                return Response.status(400).entity( "User " + userName + " is not allowed to request to delete the image with image ID " + imageId).build();
             }
-            HypervisorProxy.getInstance().addCommand(new DeleteImageCommand(vmInfoBean,imageInfo,userName));
-            logger.info("Deleted the image with the ID " + imageId );
+            DBOperations.getInstance().updateImageState(imageId,ImageState.DELETE_PENDING);
+            DBOperations.getInstance().restoreImageQuota(userName);
+            logger.info("Image with the ID " + imageId + " is marked as " + ImageState.DELETE_PENDING.toString() );
             return Response.status(200).build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

@@ -16,7 +16,9 @@
 package edu.indiana.d2i.sloan.image;
 
 public enum ImageState {
-	PENDING,
+	SHARE_PENDING,
 	DELETED,
-	ACTIVE
+	ACTIVE,
+	DELETE_PENDING,
+	ERROR
 }

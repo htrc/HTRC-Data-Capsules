@@ -92,6 +92,11 @@ public class AlwaysSuccessHypervisor implements IHypervisor {
 	}
 
 	@Override
+	public HypervisorResponse deleteImage(VmInfoBean vminfo, ImageInfoBean imageInfoBean) throws Exception {
+		return genFakeResponse(vminfo.getVmstate());
+	}
+
+	@Override
 	public HypervisorResponse deletePubKey(VmInfoBean vminfo, String pubKey, String userId) throws Exception {
 		return genFakeResponse(VMState.SHUTDOWN);
 	}

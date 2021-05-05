@@ -42,5 +42,7 @@ interface IHypervisor {
 
 	public HypervisorResponse shareImage(VmInfoBean vminfo, ImageInfoBean imageInfoBean) throws Exception;
 
+	public HypervisorResponse deleteImage(VmInfoBean vminfo, ImageInfoBean imageInfoBean) throws Exception;
+
 	public HypervisorResponse deletePubKey(VmInfoBean vminfo, String pubKey, String userId) throws Exception;
 }

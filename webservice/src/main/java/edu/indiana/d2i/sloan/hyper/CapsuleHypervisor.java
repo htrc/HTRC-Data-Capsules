@@ -503,6 +503,40 @@ class CapsuleHypervisor implements IHypervisor {
 	}
 
 	@Override
+	public HypervisorResponse deleteImage(VmInfoBean vmInfo, ImageInfoBean imageInfoBean) throws Exception {
+		logger.debug("Deleting the image ID: " + imageInfoBean.getImageId());
+
+		SSHProxy sshProxy = null;
+
+		try {
+			/* establish ssh connection */
+			sshProxy = establishSShCon(vmInfo.getPublicip(),
+					SSHProxy.SSH_DEFAULT_PORT);
+
+			/* compose script command */
+			String argList = new CommandUtils.ArgsBuilder().
+					addArgument("--imagepath", imageInfoBean.getImagePath()).build();
+
+			Commands deleteImageCmd = new Commands(
+					Collections
+							.<String> singletonList(CommandUtils
+									.composeFullCommand(HYPERVISOR_CMD.DELETE_IMAGE,
+											argList)),
+					false);
+
+			/* execute task */
+			CmdsExecResult res = executeRetriableTask(new CapsuleTask(sshProxy,
+					deleteImageCmd));
+
+			return HypervisorResponse.commandRes2HyResp(res);
+		} finally {
+			/* close ssh connection */
+			if (sshProxy != null)
+				sshProxy.close();
+		}
+	}
+
+	@Override
 	public HypervisorResponse deletePubKey(VmInfoBean vminfo, String pubKey, String userId) throws Exception {
 		logger.debug("delete public key of user " + userId + " in vm: " + vminfo);
 

@@ -529,7 +529,64 @@ def check_image_name(guid, image_name):
 
     print(response.read())
 
+def share_image(vm,guid,imageName, imageDescription, public):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
 
+    params = urllib.parse.urlencode(
+        {'vmId': vm,'imageName': imageName, 'imageDescription': imageDescription,'public': public})
+
+    # POST the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("POST", '/sloan-ws/shareimage', params, headers)
+    response = conn.getresponse()
+
+    data = response.read()
+    print(data)
+
+def activate_image(imageId):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    params = urllib.parse.urlencode(
+        {'imageId': imageId})
+
+    # POST the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("PUT", '/sloan-ws/activateimage', params, headers)
+    response = conn.getresponse()
+
+    data = response.read()
+    print(data)
+
+def request_image_deletion(guid,imageId):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
+
+    params = urllib.parse.urlencode(
+        {'imageId': imageId})
+
+    # POST the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("PUT", '/sloan-ws/requestimagedelete', params, headers)
+    response = conn.getresponse()
+
+    data = response.read()
+    print(data)
+
+def delete_image(guid,imageId):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded',
+               'htrc-remote-user': guid}
+
+    params = urllib.parse.urlencode(
+        {'imageId': imageId})
+
+    # POST the request
+    conn = http.client.HTTPConnection(DC_API, PORT)
+    conn.request("DELETE", '/sloan-ws/deleteimage', params, headers)
+    response = conn.getresponse()
+
+    data = response.read()
+    print(data)
 
 
 
@@ -660,6 +717,24 @@ if __name__ == '__main__':
     checkimagename = subparsers.add_parser('checkimagename', description='Check image name availability.')
     checkimagename.add_argument('guid')
     checkimagename.add_argument('image_name')
+
+    shareimage = subparsers.add_parser('shareimage', description='Share the image of a capsule.')
+    shareimage.add_argument('vm')
+    shareimage.add_argument('guid')
+    shareimage.add_argument('image_name')
+    shareimage.add_argument('image_description')
+    shareimage.add_argument('public')
+
+    activateimage = subparsers.add_parser('activateimage', description='Activate the image.')
+    activateimage.add_argument('image_id')
+
+    requestimagedelete = subparsers.add_parser('requestimagedelete', description='Request to delete the image.')
+    requestimagedelete.add_argument('guid')
+    requestimagedelete.add_argument('image_id')
+
+    deleteimage = subparsers.add_parser('deleteimage', description='Delete the image.')
+    deleteimage.add_argument('guid')
+    deleteimage.add_argument('image_id')
 
 
     parsed = parser.parse_args()
@@ -808,3 +883,18 @@ if __name__ == '__main__':
 
     if parsed.sub_commands == 'checkimagename':
         check_image_name(parsed.guid, parsed.image_name)
+
+    if parsed.sub_commands == 'shareimage':
+        share_image(parsed.vm, parsed.guid, parsed.image_name, parsed.image_description, parsed.public)
+
+    if parsed.sub_commands == 'activateimage':
+        activate_image(parsed.image_id)
+
+    if parsed.sub_commands == 'requestimagedelete':
+        request_image_deletion(parsed.guid,parsed.image_id)
+
+    if parsed.sub_commands == 'deleteimage':
+        delete_image(parsed.guid,parsed.image_id)
+
+
+

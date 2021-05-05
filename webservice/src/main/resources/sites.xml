@@ -81,6 +81,10 @@
 		<name>cmd.share.image</name>
 		<value>DB_HOST_SCRIPT_DIR/shareimage.sh</value>
 	</property>
+	<property>
+		<name>cmd.delete.image</name>
+		<value>DB_HOST_SCRIPT_DIR/deleteimage.sh</value>
+	</property>
 
 	<!-- fire wall policy -->
 	<property>

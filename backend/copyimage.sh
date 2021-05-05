@@ -99,7 +99,7 @@ do
    logger "$SOURCE_IMAGE is successfully copied to the $dchost host."
 done
 
-#Add DC_API call to add image
+#Add DC_API call to activate the image
 
 
 

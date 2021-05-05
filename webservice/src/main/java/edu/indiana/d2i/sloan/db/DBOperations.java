@@ -1199,7 +1199,7 @@ public class DBOperations {
 		}
 	}
 
-	public void updateImageSate(String imageId, ImageState imageState) throws SQLException {
+	public void updateImageState(String imageId, ImageState imageState) throws SQLException {
 		Connection connection = null;
 		PreparedStatement pst = null;
 
@@ -1220,6 +1220,35 @@ public class DBOperations {
 		}
 	}
 
+	public void restoreImageQuota(String userName) throws SQLException {
+
+		String sql = "SELECT " + DBSchema.UserTable.IMAGE_LEFT_QUOTA +
+				" FROM " + DBSchema.UserTable.TABLE_NAME +
+				" WHERE " + DBSchema.UserTable.GUID +
+				"=" +
+				(String.format("\"%s\"", userName));
+		try (Connection connection = DBConnections.getInstance().getConnection(); PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+
+			if (rs.next()) {
+				int imageLeftQuota = rs.getInt(DBSchema.UserTable.IMAGE_LEFT_QUOTA);
+
+				String updateSql = "UPDATE " +
+						DBSchema.UserTable.TABLE_NAME +
+						" SET " +
+						String.format("%s=%d",
+								DBSchema.UserTable.IMAGE_LEFT_QUOTA,
+								imageLeftQuota + 1) +
+						" WHERE " +
+						DBSchema.UserTable.GUID +
+						"=" +
+						(String.format("\"%s\"", userName));
+				executeTransaction(Collections
+						.<String>singletonList(updateSql));
+			}
+		}
+
+	}
+
 	public boolean imageQuotaNotExceedLimit(String userName)
 			throws SQLException {
 
@@ -1229,7 +1258,7 @@ public class DBOperations {
 				.append(" FROM ").append(DBSchema.UserTable.TABLE_NAME)
 				.append(" WHERE ").append(DBSchema.UserTable.GUID)
 				.append("=")
-				.append(userName);
+				.append((String.format("\"%s\"", userName)));
 
 		Connection connection = null;
 		PreparedStatement pst = null;
@@ -1243,25 +1272,27 @@ public class DBOperations {
 			pst = connection.prepareStatement(sql.toString());
 
 			rs = pst.executeQuery();
-			int imageLeftQuota = rs.getInt(DBSchema.UserTable.IMAGE_LEFT_QUOTA);
-			if( imageLeftQuota > 0){
-				satisfiable = true;
-				/* update user table */
-				StringBuilder updateSql = new StringBuilder();
-				updateSql
-						.append("UPDATE ")
-						.append(DBSchema.UserTable.TABLE_NAME)
-						.append(" SET ")
-						.append(String.format("%s=%d",
-								DBSchema.UserTable.IMAGE_LEFT_QUOTA,
-								imageLeftQuota - 1))
-						.append(" WHERE ")
-						.append(DBSchema.UserTable.GUID)
-						.append("=")
-						.append(userName);
+			if (rs.next()) {
+				int imageLeftQuota = rs.getInt(DBSchema.UserTable.IMAGE_LEFT_QUOTA);
+				if( imageLeftQuota > 0) {
+					satisfiable = true;
+					/* update user table */
+					StringBuilder updateSql = new StringBuilder();
+					updateSql
+							.append("UPDATE ")
+							.append(DBSchema.UserTable.TABLE_NAME)
+							.append(" SET ")
+							.append(String.format("%s=%d",
+									DBSchema.UserTable.IMAGE_LEFT_QUOTA,
+									imageLeftQuota - 1))
+							.append(" WHERE ")
+							.append(DBSchema.UserTable.GUID)
+							.append("=")
+							.append((String.format("\"%s\"", userName)));
 
-				executeTransaction(Collections
-						.<String> singletonList(updateSql.toString()));
+					executeTransaction(Collections
+							.<String>singletonList(updateSql.toString()));
+				}
 			}
 		} finally {
 			if (rs != null)

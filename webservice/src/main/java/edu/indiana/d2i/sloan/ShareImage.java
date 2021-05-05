@@ -17,7 +17,6 @@ package edu.indiana.d2i.sloan;
 
 import edu.indiana.d2i.sloan.bean.ErrorBean;
 import edu.indiana.d2i.sloan.bean.ImageInfoBean;
-import edu.indiana.d2i.sloan.bean.ListImageResponseBean;
 import edu.indiana.d2i.sloan.bean.VmInfoBean;
 import edu.indiana.d2i.sloan.db.DBOperations;
 import edu.indiana.d2i.sloan.exception.NoItemIsFoundInDBException;
@@ -66,6 +65,7 @@ public class ShareImage {
 		}
 
 		if (vmId == null || imageName == null || imageDescription == null || isPublic == null) {
+			logger.error("One or two form parameters are empty!");
 			return Response.status(400)
 					.entity(new ErrorBean(400, "One or two form parameters are empty!"))
 					.build();
@@ -73,6 +73,8 @@ public class ShareImage {
 
 		try {
 			if (!RolePermissionUtils.isPermittedCommand(userName, vmId, RolePermissionUtils.API_CMD.SHARE_IMAGE)) {
+				logger.error("User " + userName + " cannot perform task "
+						+ RolePermissionUtils.API_CMD.SHARE_IMAGE + " on VM " + vmId);
 				return Response.status(400).entity(new ErrorBean(400,
 						"User " + userName + " cannot perform task "
 								+ RolePermissionUtils.API_CMD.SHARE_IMAGE + " on VM " + vmId)).build();
@@ -80,8 +82,27 @@ public class ShareImage {
 
 			VmInfoBean vmInfo = DBOperations.getInstance().getVmInfo(userName, vmId);
 
+			CheckImageName checkImageName = new CheckImageName();
+			if (!checkImageName.isImageNameAvailable(imageName)){
+				logger.error("Image Name is not available!");
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "Image Name is not available!"))
+						.build();
+			}
+
+			if(!DBOperations.getInstance().imageQuotaNotExceedLimit(userName)){
+				logger.error("User's Image share left quota is exceeded!");
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "User's Image share left quota is exceeded!"))
+						.build();
+			}
+
 
 			if (VMStateManager.isPendingState(vmInfo.getVmstate()) ||!VMStateManager.getInstance().transitTo(vmId, vmInfo.getVmstate(), VMState.IMAGE_SHARE_PENDING, userName)) {
+				logger.error("Cannot share image of VM " + vmId
+						+ " when it is " + vmInfo.getVmstate());
 				return Response
 						.status(400)
 						.entity(new ErrorBean(400, "Cannot share image of VM " + vmId
@@ -89,31 +110,15 @@ public class ShareImage {
 						.build();
 			}
 
-			CheckImageName checkImageName = new CheckImageName();
-			if (!checkImageName.isImageNameAvailable(imageName)){
-				return Response
-						.status(400)
-						.entity(new ErrorBean(400, "Image Name is not available!"))
-						.build();
-			}
-
-			if(DBOperations.getInstance().imageQuotaNotExceedLimit(userName)){
-				logger.info(userName + " requests to share the image of VM " + vmInfo.getVmid());
-				vmInfo.setVmState(VMState.IMAGE_SHARE_PENDING);
-				String imageId = UUID.randomUUID().toString();
-				String newImagePath = Configuration.PropertyName.HOST_IMAGE_DIR + imageId + ".img";
-				java.util.Date dt = new java.util.Date();
-				String created_at = DATE_FORMATOR.format(dt);
-				ImageInfoBean imageInfoBean = new ImageInfoBean(imageId, imageName, ImageState.PENDING, imageDescription, newImagePath, null, null, vmId, isPublic, userName,created_at,created_at);
-				HypervisorProxy.getInstance().addCommand(new ShareImageCommand(vmInfo, imageInfoBean, userName));
-				return Response.status(200).entity(imageInfoBean).build();
-			} else {
-				return Response
-						.status(400)
-						.entity(new ErrorBean(400, "User's Image share left quota is exceeded!"))
-						.build();
-			}
-
+			logger.info(userName + " requests to share the image of VM " + vmInfo.getVmid());
+			vmInfo.setVmState(VMState.IMAGE_SHARE_PENDING);
+			String imageId = UUID.randomUUID().toString();
+			String newImagePath = Configuration.PropertyName.HOST_IMAGE_DIR + imageId + ".img";
+			java.util.Date dt = new java.util.Date();
+			String created_at = DATE_FORMATOR.format(dt);
+			ImageInfoBean imageInfoBean = new ImageInfoBean(imageId, imageName, ImageState.SHARE_PENDING, imageDescription, newImagePath, null, null, vmId, isPublic, userName,created_at,created_at);
+			HypervisorProxy.getInstance().addCommand(new ShareImageCommand(vmInfo, imageInfoBean, userName));
+			return Response.status(200).entity(imageInfoBean).build();
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			return Response.status(500).
@@ -151,6 +156,7 @@ public class ShareImage {
 		}
 
 		if (imageId == null || imageName == null || imageDescription == null || isPublic == null) {
+			logger.error("One or two form parameters are empty!");
 			return Response.status(400)
 					.entity(new ErrorBean(400, "One or two form parameters are empty!"))
 					.build();
@@ -162,20 +168,23 @@ public class ShareImage {
 			ImageInfoBean imageInfo = DBOperations.getInstance().getImageInfo(imageId);
 
 			if (!imageInfo.getOwner().equals(userName)) {
+				logger.error("User " + userName + " cannot update the image with the Image ID " + imageId);
 				return Response.status(400).entity(new ErrorBean(400,
 						"User " + userName + " cannot update the image with the Image ID " + imageId)).build();
 			}
 
 
 			if (!imageInfo.getImageStatus().equals(ImageState.ACTIVE)) {
+				logger.error("Cannot update the image with the image ID " + imageId+ " when it's not in " + ImageState.ACTIVE.toString() + " state.");
 				return Response
 						.status(400)
-						.entity(new ErrorBean(400, "Cannot update the image with the image ID " + imageId+ " when it's not in " + ImageState.ACTIVE + " state."))
+						.entity(new ErrorBean(400, "Cannot update the image with the image ID " + imageId+ " when it's not in " + ImageState.ACTIVE.toString() + " state."))
 						.build();
 			}
 
 			CheckImageName checkImageName = new CheckImageName();
 			if (!imageName.equals(imageInfo.getImageName()) && !checkImageName.isImageNameAvailable(imageName)){
+				logger.error("Image Name is not available!");
 				return Response
 						.status(400)
 						.entity(new ErrorBean(400, "Image Name is not available!"))
