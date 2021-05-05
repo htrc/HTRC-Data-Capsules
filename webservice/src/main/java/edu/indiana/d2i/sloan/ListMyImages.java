@@ -1,4 +1,4 @@
-package edu.indiana.d2i.sloan; /*******************************************************************************
+/*******************************************************************************
  * Copyright 2014 The Trustees of Indiana University
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,11 @@ package edu.indiana.d2i.sloan; /************************************************
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+package edu.indiana.d2i.sloan;
 
 import edu.indiana.d2i.sloan.bean.ErrorBean;
 import edu.indiana.d2i.sloan.bean.ImageInfoBean;
+import edu.indiana.d2i.sloan.bean.ListImageResponseBean;
 import edu.indiana.d2i.sloan.db.DBOperations;
 import edu.indiana.d2i.sloan.image.ImageState;
 import org.slf4j.Logger;
@@ -25,25 +27,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
 import java.util.List;
 
-@Path("/checkimagename")
-public class CheckImageName {
-	private static Logger logger = LoggerFactory.getLogger(CheckImageName.class);
+@Path("/listmyimages")
+public class ListMyImages {
+	private static Logger logger = LoggerFactory.getLogger(ListMyImages.class);
 
 //	@POST
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response checkImage(@Context HttpHeaders httpHeaders,
-							   @QueryParam("imageName") String imageName,
-							   @Context HttpServletRequest httpServletRequest) {
+	public Response listImages(@Context HttpHeaders httpHeaders,
+			@Context HttpServletRequest httpServletRequest) {
 		String userName = httpServletRequest.getHeader(Constants.USER_NAME);
 
 		// check if username exists
@@ -55,40 +54,14 @@ public class CheckImageName {
 							"Username is not present in http header.")).build();
 		}
 
-		if (imageName == null) {
-			logger.error("Invalid Image Name! Image Name is null");
-			return Response.status(400).entity( "Invalid Image Name!").build();
-		}
-
 		try {
-			if(isImageNameAvailable(imageName)){
-				return Response.status(200).build();
-			}else{
-				logger.error("Image Name is not available!");
-				return Response.status(400).entity( "Image Name is not available!").build();
-			}
-
+			List<ImageInfoBean> imageInfo = DBOperations.getInstance().getImagesInfo();
+			imageInfo.removeIf(imageInfoBean -> !imageInfoBean.getOwner().equals(userName) || imageInfoBean.getImageStatus() == ImageState.DELETED || imageInfoBean.getImageStatus() == ImageState.DELETE_PENDING);
+			return Response.status(200).entity(new ListImageResponseBean(imageInfo)).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return Response.status(500)
 					.entity(new ErrorBean(500, e.getMessage())).build();
 		}
-	}
-
-	public Boolean isImageNameAvailable(String imageName){
-		boolean imageNameAvailable = true;
-		try {
-			List<ImageInfoBean> imageInfo = DBOperations.getInstance().getImagesInfo();
-			for(ImageInfoBean imageInfoBean: imageInfo){
-				if(imageInfoBean.getImageName().equals(imageName) && (imageInfoBean.getImageStatus() != ImageState.DELETED || imageInfoBean.getImageStatus() != ImageState.DELETE_PENDING)){
-					logger.debug(imageInfoBean.getImageStatus().toString());
-					imageNameAvailable = false ;
-				}
-			}
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
-			return false;
-		}
-		return imageNameAvailable;
 	}
 }

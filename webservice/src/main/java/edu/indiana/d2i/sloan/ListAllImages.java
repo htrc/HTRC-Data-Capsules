@@ -33,9 +33,9 @@ import edu.indiana.d2i.sloan.bean.ImageInfoBean;
 import edu.indiana.d2i.sloan.bean.ListImageResponseBean;
 import edu.indiana.d2i.sloan.db.DBOperations;
 
-@Path("/listimages")
-public class ListImages {
-	private static Logger logger = LoggerFactory.getLogger(ListImages.class);
+@Path("/listallimages")
+public class ListAllImages {
+	private static Logger logger = LoggerFactory.getLogger(ListAllImages.class);
 
 //	@POST
 	

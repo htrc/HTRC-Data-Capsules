@@ -45,7 +45,6 @@ public class RequestImageDeletion {
 
         try {
             ImageInfoBean imageInfo = DBOperations.getInstance().getImageInfo(imageId);
-            VmInfoBean vmInfoBean = DBOperations.getInstance().getAllVmInfoByID(imageInfo.getSourceVM());
             if(imageInfo.getImageStatus() == ImageState.DELETED || imageInfo.getImageStatus() == ImageState.DELETE_PENDING){
                 logger.error("Cannot request to delete the image with the image ID " + imageId+ " when it's in the " + imageInfo.getImageStatus().toString() + " state.");
                 return Response
