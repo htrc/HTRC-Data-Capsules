@@ -56,7 +56,7 @@ public class ListAllActiveImages {
 
 		try {
 			List<ImageInfoBean> imageInfo = DBOperations.getInstance().getImagesInfo();
-			imageInfo.removeIf(imageInfoBean -> !imageInfoBean.getPublic() && !imageInfoBean.getOwner().equals(userName) && !imageInfoBean.getImageStatus().equals(ImageState.ACTIVE));
+			imageInfo.removeIf(imageInfoBean -> (!imageInfoBean.getPublic() && !imageInfoBean.getOwner().equals(userName)) || !imageInfoBean.getImageStatus().equals(ImageState.ACTIVE));
 			return Response.status(200).entity(new ListImageResponseBean(imageInfo)).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

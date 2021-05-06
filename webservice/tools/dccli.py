@@ -109,14 +109,14 @@ def switch_vm(vmid, guid, mode):
     print(data)
 
 
-def create_vm(guid, useremail, imagename, loginusername, loginpassword, memory, vcpu, type, concent, full_access,
+def create_vm(guid, useremail, imageid, loginusername, loginpassword, memory, vcpu, type, concent, full_access,
               title, desc_nature, desc_requirement, desc_links, desc_outside_data, rr_data_files, rr_result_usage):
     headers = {'Content-Type': 'application/x-www-form-urlencoded',
                'htrc-remote-user': guid,
                'htrc-remote-user-email': useremail}
 
     params = urllib.parse.urlencode(
-        {'imagename': imagename, 'loginusername': loginusername, 'loginpassword': loginpassword, 'memory': memory,
+        {'imageid': imageid, 'loginusername': loginusername, 'loginpassword': loginpassword, 'memory': memory,
          'vcpu': vcpu, 'type': type, 'concent': concent, 'full_access': full_access, 'title': title,
          'desc_nature': desc_nature, 'desc_requirement': desc_requirement, 'desc_links': desc_links,
          'desc_outside_data': desc_outside_data, 'rr_data_files': rr_data_files, 'rr_result_usage': rr_result_usage})
@@ -635,7 +635,7 @@ if __name__ == '__main__':
     create = subparsers.add_parser('create', description='Create DC VM')
     create.add_argument('guid')
     create.add_argument('vmuseremail')
-    create.add_argument('imagename')
+    create.add_argument('imageid')
     create.add_argument('vncusername')
     create.add_argument('vncpassword')
     create.add_argument('memory')
@@ -795,10 +795,10 @@ if __name__ == '__main__':
 
     if parsed.sub_commands == 'create':
         confirmation = query_yes_no(
-            'Are you sure you want to create a VM with image: ' + parsed.imagename + ', memory: ' + parsed.memory + ', vcpu: ' + parsed.vcpu + ' ?')
+            'Are you sure you want to create a VM with image: ' + parsed.imageid + ', memory: ' + parsed.memory + ', vcpu: ' + parsed.vcpu + ' ?')
         if confirmation:
-            print('Creating  VM with image:' + parsed.imagename + ', VNC User name:' + parsed.vncusername + ', VNC Password:' + parsed.vncpassword + ', memory: ' + parsed.memory + ', vcpu: ' + parsed.vcpu + '...')
-            create_vm(parsed.guid, parsed.vmuseremail, parsed.imagename, parsed.vncusername, parsed.vncpassword,
+            print('Creating  VM with image:' + parsed.imageid + ', VNC User name:' + parsed.vncusername + ', VNC Password:' + parsed.vncpassword + ', memory: ' + parsed.memory + ', vcpu: ' + parsed.vcpu + '...')
+            create_vm(parsed.guid, parsed.vmuseremail, parsed.imageid, parsed.vncusername, parsed.vncpassword,
                       parsed.memory, parsed.vcpu, parsed.type, parsed.concent, parsed.full_access, parsed.title, parsed.desc_nature,
                       parsed.desc_requirement, parsed.desc_links, parsed.desc_outside_data, parsed.rr_data_files, parsed.rr_result_usage)
 

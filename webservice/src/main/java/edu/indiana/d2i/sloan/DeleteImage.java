@@ -24,6 +24,7 @@ public class DeleteImage {
 
     @DELETE
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateImage(@FormParam("imageId") String imageId,
                                 @Context HttpHeaders httpHeaders,
                                 @Context HttpServletRequest httpServletRequest) {

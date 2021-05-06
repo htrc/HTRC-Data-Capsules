@@ -91,15 +91,6 @@ public class ShareImage {
 						.build();
 			}
 
-			if(!DBOperations.getInstance().imageQuotaNotExceedLimit(userName)){
-				logger.error("User's Image share left quota is exceeded!");
-				return Response
-						.status(400)
-						.entity(new ErrorBean(400, "User's Image share left quota is exceeded!"))
-						.build();
-			}
-
-
 			if (VMStateManager.isPendingState(vmInfo.getVmstate()) ||!VMStateManager.getInstance().transitTo(vmId, vmInfo.getVmstate(), VMState.IMAGE_SHARE_PENDING, userName)) {
 				logger.error("Cannot share image of VM " + vmId
 						+ " when it is " + vmInfo.getVmstate());
@@ -107,6 +98,14 @@ public class ShareImage {
 						.status(400)
 						.entity(new ErrorBean(400, "Cannot share image of VM " + vmId
 								+ " when it is " + vmInfo.getVmstate()))
+						.build();
+			}
+
+			if(!DBOperations.getInstance().imageQuotaNotExceedLimit(userName)){
+				logger.error("User's Image share left quota is exceeded!");
+				return Response
+						.status(400)
+						.entity(new ErrorBean(400, "User's Image share left quota is exceeded!"))
 						.build();
 			}
 

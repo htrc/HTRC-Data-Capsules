@@ -186,7 +186,7 @@ public class CreateVmRequestBean {
 	public String toString() {
 		return String
 				.format("[username=%s, imageid=%s, imagename=%s, vmid=%s, vmloginID=%s vmloginPasswd=%s memory=%d, vcpu=%d, volumesize=%dGB, type=%s]",
-						userName, imageName, vmid, vncLoginID, vncLoginPasswd,
+						userName, imageId, imageName, vmid, vncLoginID, vncLoginPasswd,
 						memory, vcpu, volumeSizeInGB, type);
 	}
 
